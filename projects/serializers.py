@@ -1,6 +1,6 @@
 from rest_framework import serializers
 import json
-from .models import Project, ContactMessage, FAQ, SiteSettings
+from .models import BookingRequest, ContentBlock, Project, ContactMessage, FAQ, SiteSettings
 
 class SiteSettingsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,3 +31,17 @@ class FAQSerializer(serializers.ModelSerializer):
     class Meta:
         model = FAQ
         fields = '__all__'
+
+
+class BookingRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookingRequest
+        fields = '__all__'
+        read_only_fields = ('created_at', 'updated_at')
+
+
+class ContentBlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentBlock
+        fields = '__all__'
+        read_only_fields = ('updated_at',)
