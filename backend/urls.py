@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include('projects.urls')),
+    path('static/<path:path>', static_serve, {'document_root': settings.STATIC_ROOT}),
     path('media/<path:path>', static_serve, {'document_root': settings.MEDIA_ROOT}),
     path('', flutter_web_app, name='admin_app'),
     path('<path:path>', flutter_web_app, name='admin_app_route'),

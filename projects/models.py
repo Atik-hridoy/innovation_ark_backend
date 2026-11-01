@@ -22,6 +22,21 @@ class Project(models.Model):
     def __str__(self):
         return self.title or f"Project {self.id}"
 
+
+class ProjectImage(models.Model):
+    project = models.ForeignKey(Project, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='projects/')
+    caption = models.CharField(max_length=255, blank=True, default='')
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return f"Image for {self.project.title or self.project.id} ({self.id})"
+
+
 class ContactMessage(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField()
@@ -31,6 +46,7 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"Message from {self.name} ({self.email})"
+
 
 class FAQ(models.Model):
     question = models.CharField(max_length=500)
@@ -43,6 +59,7 @@ class FAQ(models.Model):
 
     def __str__(self):
         return self.question
+
 
 class SiteSettings(models.Model):
     facebook_url = models.URLField(max_length=500, null=True, blank=True, default="https://facebook.com")
