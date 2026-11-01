@@ -23,12 +23,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7ijswrf&^c$%sjm8j9)9#r%!(uwgp6h^+9gig15xd(q1o99k%k'
+SECRET_KEY = os.getenv(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-local-development-only-change-me',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv(
+        'DJANGO_ALLOWED_HOSTS',
+        'localhost,127.0.0.1,admin.innovationark.co',
+    ).split(',')
+    if host.strip()
+]
 
 
 # Application definition
@@ -58,10 +68,22 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "https://innovationark.co",
+    "https://www.innovationark.co",
+    "https://admin.innovationark.co",
     "http://innovationark.co",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://innovationark.co",
+    "https://www.innovationark.co",
+    "https://admin.innovationark.co",
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 # Flutter Web and local frontend dev servers may use ephemeral ports.
 CORS_ALLOWED_ORIGIN_REGEXES = [
@@ -151,7 +173,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Compiled Flutter web application. CloudPanel proxies the vhost to Gunicorn.
+FRONTEND_ROOT = BASE_DIR / 'frontend_dist'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
