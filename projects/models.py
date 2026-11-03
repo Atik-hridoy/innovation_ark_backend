@@ -122,3 +122,34 @@ class ContentBlock(models.Model):
 
     def __str__(self):
         return self.label
+
+
+class AdminNotification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('booking', 'Booking Request'),
+        ('contact', 'Contact Message'),
+        ('system', 'System Alert'),
+    ]
+    title = models.CharField(max_length=255)
+    body = models.TextField()
+    category = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, default='booking')
+    reference_id = models.IntegerField(null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
+
+
+class DeviceToken(models.Model):
+    token = models.CharField(max_length=500, unique=True)
+    device_type = models.CharField(max_length=50, default='android')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.device_type} - {self.token[:20]}..."
+

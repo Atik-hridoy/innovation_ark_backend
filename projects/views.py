@@ -11,6 +11,8 @@ from .models import (
     ContactMessage,
     FAQ,
     SiteSettings,
+    AdminNotification,
+    DeviceToken,
 )
 from .serializers import (
     BookingRequestSerializer,
@@ -20,6 +22,8 @@ from .serializers import (
     ContactMessageSerializer,
     FAQSerializer,
     SiteSettingsSerializer,
+    AdminNotificationSerializer,
+    DeviceTokenSerializer,
 )
 
 class IsAdminOrReadOnly(permissions.BasePermission):
@@ -140,3 +144,39 @@ class ContentBlockViewSet(viewsets.ModelViewSet):
     queryset = ContentBlock.objects.all()
     serializer_class = ContentBlockSerializer
     permission_classes = [IsAdminOrReadOnly]
+
+
+class AdminNotificationViewSet(viewsets.ModelViewSet):
+    queryset = AdminNotification.objects.all().order_by('-created_at')
+    serializer_class = AdminNotificationSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    @action(detail=False, methods=['get'])
+    def unread(self, request):
+        unread_qs = self.queryset.filter(is_read=False)
+        serializer = self.get_serializer(unread_qs, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path='mark-all-read')
+    def mark_all_read(self, request):
+        AdminNotification.objects.filter(is_read=False).update(is_read=True)
+        return Response({'status': 'all notifications marked as read'})
+
+
+class DeviceTokenViewSet(viewsets.ModelViewSet):
+    queryset = DeviceToken.objects.all()
+    serializer_class = DeviceTokenSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        token = request.data.get('token')
+        device_type = request.data.get('device_type', 'android')
+        if not token:
+            return Response({'error': 'token is required'}, status=status.HTTP_400_BAD_REQUEST)
+        obj, created = DeviceToken.objects.update_or_create(
+            token=token,
+            defaults={'device_type': device_type}
+        )
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+

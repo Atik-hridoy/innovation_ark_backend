@@ -8,6 +8,8 @@ from .models import (
     ContactMessage,
     FAQ,
     SiteSettings,
+    AdminNotification,
+    DeviceToken,
 )
 
 class SiteSettingsSerializer(serializers.ModelSerializer):
@@ -107,3 +109,16 @@ class ContentBlockSerializer(serializers.ModelSerializer):
         model = ContentBlock
         fields = '__all__'
         read_only_fields = ('updated_at',)
+
+
+class AdminNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdminNotification
+        fields = '__all__'
+
+
+class DeviceTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeviceToken
+        fields = '__all__'
+
